@@ -1,6 +1,9 @@
 package veterinaria.mvc.service;
 
-import veterinaria.mvc.modelo.Mascota;
+import veterinaria.mvc.Repository.MascotaRepository;
+import veterinaria.mvc.dto.VeterinariaRequestDTO;
+import veterinaria.mvc.dto.VeterinariaResponseDTO;
+import veterinaria.mvc.entity.Mascota;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -9,19 +12,48 @@ import java.util.List;
 @Service
 public class MascotaService {
 
-    private final List<Mascota> mascotas = new ArrayList<>(List.of(
-        new Mascota(1L, "Firulais", "Perro",  "Juan Torres"),
-        new Mascota(2L, "Michi",   "Gato",   "Laura Ríos"),
-        new Mascota(3L, "Bugs",    "Conejo",  "Pedro Salas")
-    ));
+    private final MascotaRepository mascotaRepository;
 
-    public List<Mascota> obtenerTodas() {
-        return mascotas;
+    public MascotaService(MascotaRepository mascotaRepository) {
+        this.mascotaRepository = mascotaRepository;
     }
 
-    public void registrar(Mascota mascota) {
-        long nuevoId = mascotas.size() + 1L;
-        mascota.setId(nuevoId);
-        mascotas.add(mascota);
+    public VeterinariaResponseDTO registrar(VeterinariaRequestDTO requestDTO) {
+        Mascota mascota = new Mascota();
+        mascota.setNombre(requestDTO.getNombre());
+        mascota.setEspecie(requestDTO.getEspecie());
+        mascota.setDueno(requestDTO.getDueño());
+        mascota.setCorreo(requestDTO.getCorreo());
+        mascota.setContrasena(requestDTO.getContraseña());
+        mascota.setRol(requestDTO.getRol());
+
+        mascotaRepository.save(mascota);
+
+        VeterinariaResponseDTO responseDTO = new VeterinariaResponseDTO();
+        responseDTO.setId(mascota.getId());
+        responseDTO.setNombre(mascota.getNombre());
+        responseDTO.setEspecie(mascota.getEspecie());
+        responseDTO.setDueño(mascota.getDueno());
+        responseDTO.setCorreo(mascota.getCorreo());
+        responseDTO.setRol(mascota.getRol());
+        return responseDTO;
+
+    }
+
+    public List<VeterinariaResponseDTO> getMascotas(){
+        List <Mascota> mascotas = mascotaRepository.findAll();
+        List <VeterinariaResponseDTO> list = new ArrayList<>();
+
+        for (Mascota mascota : mascotas) {
+            VeterinariaResponseDTO responseDTO = new VeterinariaResponseDTO();
+            responseDTO.setId(mascota.getId());
+            responseDTO.setNombre(mascota.getNombre());
+            responseDTO.setEspecie(mascota.getEspecie());
+            responseDTO.setDueño(mascota.getDueno());
+            responseDTO.setCorreo(mascota.getCorreo());
+            responseDTO.setRol(mascota.getRol());
+            list.add(responseDTO);
+        }
+        return list;
     }
 }
